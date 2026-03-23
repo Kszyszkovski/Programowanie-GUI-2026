@@ -56,5 +56,7 @@ Skasuj starą treść i wklej powyższą.
 W terminalu wpisz:
 
 git add README.md
+
 git commit -m "Docs: Aktualizacja pliku README - profesjonalny opis projektów"
+
 git push origin main
