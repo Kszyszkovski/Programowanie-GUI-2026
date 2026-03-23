@@ -1,8 +1,4 @@
 # Programowanie-GUI-2026
-To README.md to wizytówka Twojego profilu na GitHubie. Dobrze napisany plik sprawi, że każdy (prowadzący, inny student, a w przyszłości rekruter) od razu zrozumie, co potrafisz.
-
-Wklej poniższą treść do pliku README.md w głównym folderze Programowanie-GUI-2026:
-
 Programowanie GUI - Portfolio Projektów (2026) 🚀
 Repozytorium zawiera zestaw projektów akademickich realizowanych w ramach przedmiotu Programowanie GUI. Projekty skupiają się na wykorzystaniu języka Python, biblioteki Tkinter oraz zaawansowanych mechanikach symulacji i emulacji.
 
