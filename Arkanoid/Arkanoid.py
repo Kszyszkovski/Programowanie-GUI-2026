@@ -3,7 +3,7 @@ import tkinter as tk
 class Arkanoid:
     def __init__(self, root):
         self.root = root
-        self.root.title("Arkanoid PC 2026 - Skin Edition")
+        self.root.title("Arkanoid PC 2026 - Keyboard Edition")
         self.root.resizable(False, False)
 
         # Konfiguracja skórek
@@ -24,34 +24,36 @@ class Arkanoid:
         # Ustawienia gry
         self.width = 600
         self.height = 400
-        self.canvas = tk.Canvas(root, width=self.width, height=self.height, bg=self.skins[self.current_skin]["bg"], highlightthickness=0)
+        self.canvas = tk.Canvas(root, width=self.width, height=self.height, bg=self.skins[self.current_skin]["bg"],
+                                highlightthickness=0)
         self.canvas.pack()
 
         # Stan gry
         self.game_running = False
         self.game_ended = False
         self.blocks = []
-        
+        self.paddle_speed = 20  # Prędkość przesunięcia paletki
+
         self.init_game_objects()
 
-        # Interakcja
-        self.canvas.bind("<Motion>", self.move_paddle)
+        # --- ZMIANA STEROWANIA ---
+        self.root.bind("<Left>", lambda e: self.move_paddle_keyboard(-self.paddle_speed))
+        self.root.bind("<Right>", lambda e: self.move_paddle_keyboard(self.paddle_speed))
         self.root.bind("<space>", self.handle_space)
 
     def init_game_objects(self):
-        """Inicjalizacja lub resetowanie obiektów na ekranie"""
         self.canvas.delete("all")
         skin = self.skins[self.current_skin]
-        
+
         self.paddle = self.canvas.create_rectangle(250, 370, 350, 385, fill=skin["paddle"], outline="white")
         self.ball = self.canvas.create_oval(290, 190, 310, 210, fill=skin["ball"], outline="white")
-        
+
         self.ball_speed_x = 4
         self.ball_speed_y = -4
-        
+
         self.setup_blocks()
-        self.text_id = self.canvas.create_text(300, 250, text="WYBIERZ SKÓRKĘ I NACIŚNIJ SPACJĘ", 
-                                              fill=skin["text"], font=("Arial", 14, "bold"))
+        self.text_id = self.canvas.create_text(300, 250, text="UŻYJ STRZAŁEK I NACIŚNIJ SPACJĘ",
+                                               fill=skin["text"], font=("Arial", 14, "bold"))
 
     def setup_blocks(self):
         colors = ["#ff4444", "#ffbb33", "#00C851", "#33b5e5"]
@@ -68,13 +70,13 @@ class Arkanoid:
             self.canvas.config(bg=self.skins[skin_name]["bg"])
             self.init_game_objects()
 
-    def move_paddle(self, event):
+    # --- NOWA METODA STEROWANIA ---
+    def move_paddle_keyboard(self, dx):
         if not self.game_ended:
-            x = event.x
-            # Ograniczenie paletki do granic okna
-            half_width = 50
-            new_x = max(half_width, min(self.width - half_width, x))
-            self.canvas.coords(self.paddle, new_x - half_width, 370, new_x + half_width, 385)
+            pos = self.canvas.coords(self.paddle)
+            # Sprawdzenie, czy paletka nie wyjdzie poza ekran
+            if pos[0] + dx >= 0 and pos[2] + dx <= self.width:
+                self.canvas.move(self.paddle, dx, 0)
 
     def handle_space(self, event):
         if self.game_ended:
@@ -91,19 +93,16 @@ class Arkanoid:
         self.canvas.move(self.ball, self.ball_speed_x, self.ball_speed_y)
         pos = self.canvas.coords(self.ball)
 
-        # Ściany
         if pos[0] <= 0 or pos[2] >= self.width:
             self.ball_speed_x *= -1
         if pos[1] <= 0:
             self.ball_speed_y *= -1
-        
-        # Paletka
+
         paddle_pos = self.canvas.coords(self.paddle)
         if pos[3] >= paddle_pos[1] and pos[2] >= paddle_pos[0] and pos[0] <= paddle_pos[2]:
-            if self.ball_speed_y > 0: # Tylko gdy spada
+            if self.ball_speed_y > 0:
                 self.ball_speed_y *= -1
 
-        # Bloki
         items = self.canvas.find_overlapping(*pos)
         for item in items:
             if item in self.blocks:
@@ -112,7 +111,6 @@ class Arkanoid:
                 self.ball_speed_y *= -1
                 break
 
-        # Warunki końca
         if pos[3] >= self.height:
             self.end_game("KONIEC GRY", "red")
         elif not self.blocks:
